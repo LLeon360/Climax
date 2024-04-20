@@ -46,7 +46,7 @@ export const SignInForm: FC<SignInFormProps> = ({ onShowSignUp }) => {
   const login = async ({ email, password }: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success!",
         description: "You have been signed in.",

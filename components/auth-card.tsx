@@ -30,6 +30,7 @@ export const AuthCard = () => {
           <CardTitle>{isShowingSignUp ? "Sign Up" : "Sign In"}</CardTitle>
           <CardDescription>
             Give them a reason to {isShowingSignUp ? "sign up" : "sign in"}.
+            (github doesn't work yet i can set it up if we think we want it, but i think google is all we rly need)
           </CardDescription>
         </CardHeader>
         <CardContent>

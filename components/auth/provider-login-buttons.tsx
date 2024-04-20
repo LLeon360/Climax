@@ -1,5 +1,6 @@
 "use client";
 
+import { createUserFirestoreDocument } from "@/app/api/FirebaseAuth";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -22,8 +23,9 @@ export const ProviderLoginButtons: FC<Props> = ({ onSignIn }) => {
   const doProviderSignIn = async (provider: GoogleAuthProvider) => {
     try {
       setIsLoading(true);
-      await signInWithPopup(auth, provider);
-      // create user in your database here
+      const userData = await signInWithPopup(auth, provider);
+      const user = userData.user;
+      await createUserFirestoreDocument(user.uid, user.displayName, user.email, user.photoURL);
       toast({ title: "Signed in!" });
       onSignIn?.();
     } catch (err: any) {
@@ -44,7 +46,7 @@ export const ProviderLoginButtons: FC<Props> = ({ onSignIn }) => {
             title: "Oops!",
             description: "Provider not configured, yet.",
           });
-          // await doProviderSignIn(provider);
+          await doProviderSignIn(provider);
         }}
       >
         <svg

@@ -19,10 +19,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useAuth } from "reactfire";
+import { createUserFirestoreDocument } from "@/app/api/FirebaseAuth";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(100),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
 });
 
 interface SignUpFormProps {
@@ -38,17 +41,21 @@ export const SignUpForm: FC<SignUpFormProps> = ({ onShowLogin, onSignUp }) => {
     defaultValues: {
       email: "",
       password: "",
+      firstName: "",
+      lastName: "",
     },
   });
 
   const auth = useAuth();
 
-  const signup = async ({ email, password }: z.infer<typeof formSchema>) => {
+  const signup = async ({ email, password, firstName, lastName }: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
       const user = await createUserWithEmailAndPassword(auth, email, password);
+      const fullName = firstName + " " + lastName;
       if (user?.user.uid && user.user.email) {
-        // create user in firestore here if you want
+        //IMPORTANT, we need to let the user submit a pfp somewhere if they use photoURL
+        await createUserFirestoreDocument(user.user.uid, fullName, user.user.email, user.user.photoURL);
         toast({ title: "Account created!" });
         onSignUp?.();
       }
@@ -68,6 +75,31 @@ export const SignUpForm: FC<SignUpFormProps> = ({ onShowLogin, onSignUp }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(signup)}>
           <fieldset disabled={isLoading} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
             <FormField
               control={form.control}
               name="email"
