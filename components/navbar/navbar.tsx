@@ -13,23 +13,34 @@ export const NavBar: FC = () => {
           <div className="flex items-center">
             <Link href="/" className="hover:opacity-80 transition-opacity">
               <div className="flex items-center">
-                <FishIcon className="w-8 h-8 mr-2 inline" />{" "}
-                <span className="text-xl font-semibold tracking-tighter text-slate-800 mr-6">
-                  Venefish
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>{"     "}
+                <span className="text-xl font-semibold tracking-tighter text-slate-800 mr-6 ml-2">
+                  Climax
                 </span>
               </div>
             </Link>
             <div className="hidden md:flex justify-between grow">
               <div>
                 <Link href="profile" className={buttonVariants({ variant: "link" })}>
-                  Item 1
+                  Apple Watch Session Code
                 </Link>
                 <Link href="#2" className={buttonVariants({ variant: "link" })}>
-                  Item 2
+                  Watch Party
                 </Link>
-                <Link href="#3" className={buttonVariants({ variant: "link" })}>
+                {/* <Link href="#3" className={buttonVariants({ variant: "link" })}>
                   Item 3
-                </Link>
+                </Link> */}
               </div>
               <div className="flex items-center space-x-4">
                 <NavbarUserLinks />

@@ -35,7 +35,6 @@ if(!user){
 }
   return (
     <div>
-      <h1>Profile</h1>
       {userCode && <p>Your unique code: {userCode}</p>}
     </div>
   )

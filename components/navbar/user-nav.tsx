@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 import { getAuth, signOut } from "firebase/auth";
+import { Link } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "reactfire";
+import { buttonVariants } from "@/components/ui/button";
 
 export function UserNav() {
   const { data } = useUser();
