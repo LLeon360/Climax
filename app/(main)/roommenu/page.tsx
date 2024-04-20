@@ -16,9 +16,27 @@ export default function RoomMenuPage() {
   const firestore = useFirestore();
 
   const router = useRouter();
+  const setOrUpdateRoom = async (roomId: string) => {
+    const userRef = doc(firestore, "accounts", user.uid);
+    const docSnap = await getDoc(userRef);
+    console.log("Trying Room ID: ", roomId);
+    if (docSnap.exists()) {
+      
+      console.log("User doc exists");
+      //check if roomId exists
+      if (docSnap.data().roomId) {
+        console.log("Updating Room ID: ", roomId);
+        //if exists, update it
+        await updateDoc(userRef, { roomId: roomId });
+      } else {
+        //if not, create it
+        console.log("Setting Room ID: ", roomId);
+        await setDoc(doc(firestore, 'accounts', user.uid), { roomId: roomId }, { merge: true });
+      };
+    }
+  }
 
   async function joinRoom(roomId: string) {
-    console.log("Room ID: ", roomId);
     const roomRef = doc(firestore, "rooms", roomId);
     const docSnap = await getDoc(roomRef);
 
@@ -35,7 +53,8 @@ export default function RoomMenuPage() {
       let users = docSnap.data().users;
       users.push(user.uid);
       updateDoc(roomRef, { users: users });
-      router.push(`/roommenu/${roomId}`);
+
+      await setOrUpdateRoom(roomId);
     }
   }
 
@@ -47,6 +66,8 @@ export default function RoomMenuPage() {
       timestamp: 0,
       isPlaying: false,
     });
+
+    await setOrUpdateRoom(newRoomRef.id);
 
     // Navigate to the new room
     router.push(`/roommenu/${newRoomRef.id}`);
