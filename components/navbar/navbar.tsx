@@ -38,9 +38,9 @@ export const NavBar: FC = () => {
                 <Link href="heartrate" className={buttonVariants({ variant: "link" })}>
                   Watch Party
                 </Link>
-                {/* <Link href="#3" className={buttonVariants({ variant: "link" })}>
-                  Item 3
-                </Link> */}
+                <Link href="roommenu" className={buttonVariants({ variant: "link" })}>
+                  Rooms
+                </Link>
               </div>
               <div className="flex items-center space-x-4">
                 <NavbarUserLinks />
