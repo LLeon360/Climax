@@ -21,7 +21,7 @@ export const NavBar: FC = () => {
             </Link>
             <div className="hidden md:flex justify-between grow">
               <div>
-                <Link href="#1" className={buttonVariants({ variant: "link" })}>
+                <Link href="profile" className={buttonVariants({ variant: "link" })}>
                   Item 1
                 </Link>
                 <Link href="#2" className={buttonVariants({ variant: "link" })}>
