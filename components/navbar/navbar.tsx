@@ -35,7 +35,7 @@ export const NavBar: FC = () => {
                 <Link href="profile" className={buttonVariants({ variant: "link" })}>
                   Apple Watch Session Code
                 </Link>
-                <Link href="#2" className={buttonVariants({ variant: "link" })}>
+                <Link href="heartrate" className={buttonVariants({ variant: "link" })}>
                   Watch Party
                 </Link>
                 {/* <Link href="#3" className={buttonVariants({ variant: "link" })}>
