@@ -21,8 +21,17 @@ export default function RoomMenuPage() {
 		console.log("Room ID: ", roomId);
 		const roomRef = doc(firestore, "rooms", roomId);
 		const docSnap = await getDoc(roomRef);
+
 		if (docSnap.exists()) {
 			//if exists swap into the room
+
+      for(let i = 0; i < docSnap.data().users.length; i++) {
+        if(docSnap.data().users[i] === user.uid) {
+          router.push(`/roommenu/${roomId}`);
+          return;
+        }
+      }
+      docSnap.data().users.push(user.uid);
 			router.push(`/roommenu/${roomId}`);
 		}
 	}
