@@ -33,6 +33,8 @@
     "react-hook-form": "^7.50.1",
     "react-player": "^2.16.0",
     "reactfire": "^4.2.3",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
@@ -41,6 +43,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/ws": "^8.5.10",
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
