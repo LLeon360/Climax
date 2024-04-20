@@ -32,6 +32,7 @@ export default function RoomMenuPage() {
         }
       }
       docSnap.data().users.push(user.uid);
+      updateDoc(roomRef, { users: docSnap.data().users });
 			router.push(`/roommenu/${roomId}`);
 		}
 	}
