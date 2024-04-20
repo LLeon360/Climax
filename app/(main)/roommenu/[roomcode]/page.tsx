@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useRef, useState } from "react";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import ReactPlayer from "react-player";
 import { useFirestore } from "reactfire";
 
@@ -11,15 +11,22 @@ interface User {
 
 export default function Page({ params }: { params: { roomcode: string } }) {
   const firestore = useFirestore();
+  const playerRef = useRef<ReactPlayer>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [videoUrl, setVideoUrl] = useState("");
+  const [playing, setPlaying] = useState(false);
+  const [timestamp, setTimestamp] = useState<number>(0);
+  const roomRef = doc(firestore, "rooms", params.roomcode);
 
+  // Sync room state with Firestore
   useEffect(() => {
-    const roomRef = doc(firestore, "rooms", params.roomcode);
     const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
-        setVideoUrl(docSnap.data().videoUrl);
-        const userIds = docSnap.data().users; // assuming the field that contains user IDs is named 'users'
+        const data = docSnap.data();
+        setVideoUrl(data.videoUrl);
+        setPlaying(data.isPlaying);
+        setTimestamp(data.timestamp);
+        const userIds = data.users; // assuming the field that contains user IDs is named 'users'
 
         // Clear the current users data
         setUsers([]);
@@ -42,23 +49,42 @@ export default function Page({ params }: { params: { roomcode: string } }) {
               });
             }
           });
-
-          // Clean up this user's subscription when the component unmounts or the userIds change
           return unsubscribeUser;
         });
-        console.log(users);
       }
     });
-
-    // Clean up the room subscription when the component unmounts or the roomcode changes
     return () => {
       unsubscribeRoom();
     };
-  }, [params.roomcode, firestore]);
+  }, [firestore, params.roomcode]);
+
+  // Update Firestore when the video is played or paused
+  const handlePlayPause = () => {
+    updateDoc(roomRef, {
+      isPlaying: !playing,
+      timestamp: playerRef.current?.getCurrentTime() || 0,
+    });
+  };
+
+  // Seek to the current timestamp whenever it changes
+  useEffect(() => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(timestamp, "seconds");
+    }
+  }, [timestamp]);
 
   return (
     <div>
-      <ReactPlayer url={videoUrl} />
+      <ReactPlayer
+        ref={playerRef}
+        url={videoUrl}
+        playing={playing}
+        onPlay={() => updateDoc(roomRef, { isPlaying: true })}
+        onPause={() => updateDoc(roomRef, { isPlaying: false })}
+        onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
+        controls={true}
+      />
+      <button onClick={handlePlayPause}>{playing ? "Pause" : "Play"}</button>
       <div>
         {users.map((user, index) => (
           <div key={index}>
