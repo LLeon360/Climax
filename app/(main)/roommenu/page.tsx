@@ -31,8 +31,8 @@ export default function RoomMenuPage() {
 		// Create a new room object in Firestore with the video URL
 		const newRoomRef = await addDoc(collection(firestore, "rooms"), {
 			videoUrl: videoUrl,
-			users: [user.uid], 
-			timestamp: 0
+			users: [user.uid],
+			timestamp: 0,
 		});
 
 		// Navigate to the new room
@@ -49,19 +49,21 @@ export default function RoomMenuPage() {
 				<div className="flex flex-col space-y-4">
 					<form
 						onSubmit={(e) => {
+							e.preventDefault();
 							createRoom(
 								(e.currentTarget.elements[0] as HTMLInputElement).value
 							);
 						}}
+						className="flex flex-col"
 					>
 						<input
 							type="text"
-							className="border border-gray-300 p-2 rounded"
+							className="border border-gray-300 p-2 rounded w-full"
 							placeholder="Enter Video URL"
 						/>
-            <button
+						<button
 							type="submit"
-							className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+							className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 w-full"
 						>
 							Create Room
 						</button>
@@ -71,25 +73,22 @@ export default function RoomMenuPage() {
 					<form
 						onSubmit={(e) => {
 							e.preventDefault();
-							console.log(
-								(e.currentTarget.elements[0] as HTMLInputElement).value
-							);
 							joinRoom((e.currentTarget.elements[0] as HTMLInputElement).value);
 						}}
+						className="flex flex-col"
 					>
 						<input
 							type="text"
-							className="border border-gray-300 p-2 rounded"
+							className="border border-gray-300 p-2 rounded w-full"
 							placeholder="Enter Room ID"
 						/>
 						<button
 							type="submit"
-							className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+							className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 w-full"
 						>
 							Join Room
 						</button>
 					</form>
-          
 				</div>
 			</section>
 		</div>
