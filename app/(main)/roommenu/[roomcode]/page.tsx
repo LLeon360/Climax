@@ -11,16 +11,24 @@ import { Hearts } from "react-loader-spinner";
 import { fetchGemini } from "./fetchGemini";
 import { time } from "console";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import Webcam from 'react-webcam';
+import Webcam from "react-webcam";
 
 interface User {
+  uid: string;
   name: string;
   photoURL: string;
+  heartRate: number;
+}
+
+interface Image {
+  userId: string;
+  photoUrl: string;
+  timestamp: number;
 }
 
 export default function Page({ params }: { params: { roomcode: string } }) {
   const webcamRef = useRef<Webcam>(null);
-  const storage= useStorage();
+  const storage = useStorage();
   const { data: user } = useUser();
   const firestore = useFirestore();
   const playerRef = useRef<ReactPlayer>(null);
@@ -28,12 +36,13 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const [videoUrl, setVideoUrl] = useState("");
   const [playing, setPlaying] = useState(false);
   const [timestamp, setTimestamp] = useState<number>(0);
+  const [images, setImages] = useState<Image[]>([]);
   const roomRef = doc(firestore, "rooms", params.roomcode);
 
   const [stage, setStage] = useState<number>(1);
   const [geminiRequestCompleted, setGeminiRequestCompleted] = useState(false);
-  const [geminiResponse, setGeminiResponse] = useState({});
-  const [geminiSmartResponse, setGeminiSmartResponse] = useState({});
+  const [geminiResponse, setGeminiResponse] = useState("");
+  const [geminiSmartResponse, setGeminiSmartResponse] = useState("");
 
   const peakHeartRate = useRef<number>(0);
   const peakHeartRateTimestamp = useRef<number>(0);
@@ -184,104 +193,142 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     if (docSnap.exists()) {
       const userIds = docSnap.data().users;
 
-      for(const userId of userIds){
+      for (const userId of userIds) {
         const userRef = doc(firestore, "accounts", userId);
-        const heartRatesRef = doc(userRef, 'heartRates', params.roomcode);
+        const heartRatesRef = doc(userRef, "heartRates", params.roomcode);
         const heartRatesSnap = await getDoc(heartRatesRef);
-        
+
         if (heartRatesSnap.exists() && heartRatesSnap.data().heartRate) {
           //get last value of heart rate
-          const heartRate = heartRatesSnap.data().heartRate[heartRatesSnap.data().heartRate.length - 1];
+          const heartRate =
+            heartRatesSnap.data().heartRate[
+              heartRatesSnap.data().heartRate.length - 1
+            ];
           //add to avg
           heartRateAvg += heartRate;
           console.log(heartRate);
+          
+          setUsers((currentUsers) => currentUsers.map(user => {
+            if (user.uid === userId) { // Assuming your User interface has an 'id' field
+              return { ...user, heartRate: heartRate };
+            }
+            return user;
+          }));
+          
           userCount++;
         }
       }
       //get avg
       heartRateAvg = heartRateAvg / userCount;
-      console.log("Avg is " + heartRateAvg + " at " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate.current + " at " + peakHeartRateTimestamp.current);
+      console.log(
+        "Avg is " +
+          heartRateAvg +
+          " at " +
+          playerRef.current?.getCurrentTime() +
+          " and peak heart rate is " +
+          peakHeartRate.current +
+          " at " +
+          peakHeartRateTimestamp.current
+      );
       console.log("True? " + (heartRateAvg > peakHeartRate.current));
-      if(heartRateAvg > peakHeartRate.current){ 
-        console.log("New peak heart rate!" + heartRateAvg + " at " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate.current + " at " + peakHeartRateTimestamp.current);
-        capture()
+      if (heartRateAvg > peakHeartRate.current) {
+        console.log(
+          "New peak heart rate!" +
+            heartRateAvg +
+            " at " +
+            playerRef.current?.getCurrentTime() +
+            " and peak heart rate is " +
+            peakHeartRate.current +
+            " at " +
+            peakHeartRateTimestamp.current
+        );
+        capture();
         peakHeartRate.current = heartRateAvg;
-        peakHeartRateTimestamp.current = playerRef.current?.getCurrentTime() || 0;
+        peakHeartRateTimestamp.current =
+          playerRef.current?.getCurrentTime() || 0;
         // setPeakHeartRate(heartRateAvg);
         // setPeakHeartRateTimestamp(timestamp);
       }
       console.log(peakHeartRateTimestamp.current);
     }
-  }
+  };
 
   const capture = useCallback(() => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
         // Convert base64 string to a Blob
-        const blob = base64ToBlob(imageSrc, 'image/jpeg');
-    
-        const storageRef = ref(storage, `images/${user?.uid ?? "temp"}_${Date.now()}.jpg`);
-    
-        uploadBytes(storageRef, blob).then((snapshot) => {
-          console.log('Uploaded a blob or file!', snapshot);
-    
-          getDownloadURL(snapshot.ref).then((downloadURL) => {
-          const roomDocRef = doc(firestore, "rooms", params.roomcode);
-          getDoc(roomDocRef).then((docSnap) => {
-            if (docSnap.exists()) {
-              const images = docSnap.data().images || [];
-              const newImage = {
-                userId: user?.uid,
-                photoUrl: downloadURL,
-                timestamp: playerRef.current?.getCurrentTime(),
-              };
-              const updatedImages = [...images, newImage];
-              updateDoc(roomDocRef, { images: updatedImages });
-            } else {
-              const newImage = [{
-                userId: user?.uid,
-                photoUrl: downloadURL,
-                timestamp: playerRef.current?.getCurrentTime(),
-              }];
-              setDoc(roomDocRef, { images: newImage }, { merge: true });
-            }
-          }).catch((error) => {
-            console.error("Error updating document:", error);
+        const blob = base64ToBlob(imageSrc, "image/jpeg");
+
+        const storageRef = ref(
+          storage,
+          `images/${user?.uid ?? "temp"}_${Date.now()}.jpg`
+        );
+
+        uploadBytes(storageRef, blob)
+          .then((snapshot) => {
+            console.log("Uploaded a blob or file!", snapshot);
+
+            getDownloadURL(snapshot.ref).then((downloadURL) => {
+              const roomDocRef = doc(firestore, "rooms", params.roomcode);
+              getDoc(roomDocRef)
+                .then((docSnap) => {
+                  if (docSnap.exists()) {
+                    const images = docSnap.data().images || [];
+                    const newImage = {
+                      userId: user?.uid,
+                      photoUrl: downloadURL,
+                      timestamp: playerRef.current?.getCurrentTime(),
+                    };
+                    const updatedImages = [...images, newImage];
+                    updateDoc(roomDocRef, { images: updatedImages });
+                  } else {
+                    const newImage = [
+                      {
+                        userId: user?.uid,
+                        photoUrl: downloadURL,
+                        timestamp: playerRef.current?.getCurrentTime(),
+                      },
+                    ];
+                    setDoc(roomDocRef, { images: newImage }, { merge: true });
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error updating document:", error);
+                });
+            });
+          })
+          .catch((error) => {
+            console.error("Error uploading file to Firebase Storage:", error);
           });
-          });
-        }).catch((error) => {
-          console.error("Error uploading file to Firebase Storage:", error);
-        });
       }
     }
   }, [storage]);
-  
+
   function base64ToBlob(base64, contentType) {
     const sliceSize = 512;
-    const byteCharacters = atob(base64.split(',')[1]);
+    const byteCharacters = atob(base64.split(",")[1]);
     const byteArrays = [];
-  
+
     for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
       const slice = byteCharacters.slice(offset, offset + sliceSize);
-  
+
       const byteNumbers = new Array(slice.length);
       for (let i = 0; i < slice.length; i++) {
         byteNumbers[i] = slice.charCodeAt(i);
       }
-  
+
       const byteArray = new Uint8Array(byteNumbers);
       byteArrays.push(byteArray);
     }
-  
-    const blob = new Blob(byteArrays, {type: contentType});
+
+    const blob = new Blob(byteArrays, { type: contentType });
     return blob;
   }
-  
 
   // Sync room state with Firestore
   useEffect(() => {
-    let unsubscribeUsers : (() =>void)[]=[];
+    let unsubscribeUsers: (() => void)[] = [];
 
     const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -290,6 +337,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         setPlaying(data.isPlaying);
         setStage(data.stage || 0);
         setTimestamp(data.timestamp);
+        if (data.stage === 3 && data.images) {
+          setImages(data.images.slice(0, 10));
+        }
         const userIds = data.users; // assuming the field that contains user IDs is named 'users'
 
         // Clear the current users data
@@ -302,8 +352,10 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           const unsubscribeUser = onSnapshot(userRef, (userDoc) => {
             if (userDoc.exists()) {
               const userData: User = {
+                uid: userDoc.id,
                 name: userDoc.data().name,
                 photoURL: userDoc.data().photoURL,
+                heartRate: 0
               };
               // Update the state with the new user's data
               setUsers((prevUsers) => {
@@ -313,7 +365,6 @@ export default function Page({ params }: { params: { roomcode: string } }) {
                 return [...newUsers, userData];
               });
             }
-
           });
           return unsubscribeUser;
         });
@@ -362,8 +413,14 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const getGeminiResponse = async () => {
     setGeminiRequestCompleted(false);
     // fetch gemini data
-    console.log("Fetching Gemini data with timestamp: ", peakHeartRateTimestamp.current);
-    let data = await fetchGemini(videoUrl, Math.floor(peakHeartRateTimestamp.current));
+    console.log(
+      "Fetching Gemini data with timestamp: ",
+      peakHeartRateTimestamp.current
+    );
+    let data = await fetchGemini(
+      videoUrl,
+      Math.floor(peakHeartRateTimestamp.current)
+    );
     console.log(data);
     setGeminiResponse(data[2]);
     setGeminiSmartResponse(data[0]);
@@ -390,7 +447,6 @@ export default function Page({ params }: { params: { roomcode: string } }) {
             </button>
           </CopyToClipboard>
         </p>
-          
 
         <div className="w-full h-[900px] mt-2">
           {stage === 2 && (
@@ -447,15 +503,21 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           )}
           <br />
           {users.map((user, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <img
-                src={user.photoURL}
-                alt={user.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <p className="ml-2 text-sm font-medium">{user.name}</p>
-            </div>
-          ))}
+  <div key={index} className="flex items-center mb-2">
+    <img
+      src={user.photoURL}
+      alt={user.name}
+      className="w-12 h-12 rounded-full object-cover"
+    />
+    <p className="ml-2 text-sm font-medium">{user.name}</p>
+    <span className="ml-2 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.172 5.172a4 4 0 015.656 0L12 8.343l3.172-3.171a4 4 0 115.656 5.656L12 19l-8.828-8.828a4 4 0 010-5.656z" />
+      </svg>
+      {user.heartRate > 0 ? user.heartRate : '--'}
+    </span>
+  </div>
+))}
         </div>
         <button
           onClick={handlePlayPause}
@@ -481,6 +543,18 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       </div>
 
       {stage === 2 && <HeartRate params={{ roomcode: params.roomcode }} />}
+      {stage === 3 && (
+        <div>
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image.photoUrl}
+              alt={`Captured at ${image.timestamp}`}
+              className="w-full max-w-sm"
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
