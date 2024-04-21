@@ -1,21 +1,25 @@
 "use client";
+
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc, collection, getDocs, DocumentData, Firestore, updateDoc } from 'firebase/firestore';
 import { useFirestore } from 'reactfire';
 import { Line } from 'react-chartjs-2';
 import { ChartData, ChartOptions, Point, Chart, LinearScale, PointElement,LineElement} from 'chart.js';
 Chart.register(LinearScale,PointElement,LineElement);
+
 interface HeartRates {
   heartRates: string[];
 }
 
-const Page: React.FC = () => {
+const HeartRate: React.FC = () => {
   const [highestAvgRate, setHighestAvgRate] = useState<number | null>(null);
+
   const [highestAvgRateIndex, setHighestAvgRateIndex] = useState<number | null>(null);
   const [heartbeatData, setheartbeatData] = useState<ChartData<"line", (number | null)[], unknown>>({
     labels: [],
     datasets: []
   });
+
   const firestore: Firestore = useFirestore();
   const options: ChartOptions<'line'>  = {
     scales: {
@@ -90,7 +94,10 @@ const Page: React.FC = () => {
   return (
     <div>
       {highestAvgRate !== null && highestAvgRateIndex !== null ? (
-        <p>The highest average heart rate is {highestAvgRate.toFixed(2)} at second {highestAvgRateIndex}.</p>
+        <p>
+          The highest average heart rate is {highestAvgRate.toFixed(2)} at
+          second {highestAvgRateIndex}.
+        </p>
       ) : (
         <p>Loading heart rate data...</p>
       )}
@@ -104,5 +111,7 @@ const Page: React.FC = () => {
   );
 };
 
+
 export default Page;
+
 
