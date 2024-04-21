@@ -89,8 +89,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     socket.on("disconnect", onDisconnect);
 
     const updateMaxAvgHeartRateInterval = setInterval(() => {
-      updateMaxAvgHeartRate();
-      console.log("Time is " + timestamp + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
+      updateMaxAvgHeartRate();console.log("Time is " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
     }, 1000);
 
     return () => {
@@ -248,7 +247,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       }
     });
     return () => {
-      unsubscribeUsers();
+      for (const unsubscribeUser of unsubscribeUsers) {
+        unsubscribeUser();
+      }
       unsubscribeRoom();
     };
   }, [firestore, params.roomcode]);
