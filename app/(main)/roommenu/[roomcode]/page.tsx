@@ -10,6 +10,7 @@ import HeartRate from "@/components/heartrate";
 import { Hearts } from "react-loader-spinner";
 
 import { fetchGemini } from "./fetchGemini";
+import { time } from "console";
 
 interface User {
   name: string;
@@ -30,6 +31,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const [geminiRequestCompleted, setGeminiRequestCompleted] = useState(false);
   const [geminiResponse, setGeminiResponse] = useState({});
   const [geminiSmartResponse, setGeminiSmartResponse] = useState({});
+
+    const [peakHeartRate, setPeakHeartRate] = useState(0);
+    const [peakHeartRateTimestamp, setPeakHeartRateTimestamp] = useState(0);
 
   const [stream, setStream] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -84,9 +88,16 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
 
+    const updateMaxAvgHeartRateInterval = setInterval(() => {
+      updateMaxAvgHeartRate();
+      console.log("Time is " + timestamp + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
+    }, 1000);
+
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
+      // clean up
+      clearInterval(updateMaxAvgHeartRateInterval);
     };
   }, []);
 
@@ -161,6 +172,41 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     };
   }, [socket, stream]);
 
+  // compute a current avg heart rate across users and update max avg heart rate if necessary
+  const updateMaxAvgHeartRate = async () => {
+    let heartRateAvg = 0;
+    let userCount = 0; //count users where data was successfully fetched
+    const docRef = doc(firestore, "rooms", params.roomcode);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const userIds = docSnap.data().users;
+
+      for(const userId of userIds){
+        const userRef = doc(firestore, "accounts", userId);
+        const heartRatesRef = doc(userRef, 'heartRates', params.roomcode);
+        const heartRatesSnap = await getDoc(heartRatesRef);
+        
+        if (heartRatesSnap.exists() && heartRatesSnap.data().heartRates) {
+          //get last value of heart rate
+          const heartRate = heartRatesSnap.data().heartRates[heartRatesSnap.data().heartRates.length - 1];
+          //add to avg
+          heartRateAvg += heartRate;
+          console.log(heartRate);
+          userCount++;
+        }
+      }
+      //get avg
+      heartRateAvg = heartRateAvg / userCount;
+      
+      
+      if(heartRateAvg > peakHeartRate){ 
+        setPeakHeartRate(heartRateAvg);
+        setPeakHeartRateTimestamp(timestamp);
+      }
+      console.log(peakHeartRateTimestamp);
+    }
+  }
+
   // Sync room state with Firestore
   useEffect(() => {
     let unsubscribeUsers = () => {};
@@ -195,6 +241,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
                 return [...newUsers, userData];
               });
             }
+
           });
           return unsubscribeUser;
         });
@@ -241,7 +288,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const getGeminiResponse = async () => {
     setGeminiRequestCompleted(false);
     // fetch gemini data
-    let data = await fetchGemini(videoUrl, timestamp);
+    console.log("Fetching Gemini data with timestamp: ", peakHeartRateTimestamp);
+    let data = await fetchGemini(videoUrl, peakHeartRateTimestamp);
     console.log(data);
     setGeminiResponse(data[2]);
     setGeminiSmartResponse(data[0]);
