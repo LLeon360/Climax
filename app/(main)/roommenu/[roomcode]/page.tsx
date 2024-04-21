@@ -185,9 +185,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         const heartRatesRef = doc(userRef, 'heartRates', params.roomcode);
         const heartRatesSnap = await getDoc(heartRatesRef);
         
-        if (heartRatesSnap.exists() && heartRatesSnap.data().heartRates) {
+        if (heartRatesSnap.exists() && heartRatesSnap.data().heartRate) {
           //get last value of heart rate
-          const heartRate = heartRatesSnap.data().heartRates[heartRatesSnap.data().heartRates.length - 1];
+          const heartRate = heartRatesSnap.data().heartRate[heartRatesSnap.data().heartRate.length - 1];
           //add to avg
           heartRateAvg += heartRate;
           console.log(heartRate);
@@ -195,8 +195,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         }
       }
       //get avg
+      console.log("Before dividing " + heartRateAvg + " " + userCount);
       heartRateAvg = heartRateAvg / userCount;
-      
+      console.log("Avg is " + heartRateAvg + " at " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
       
       if(heartRateAvg > peakHeartRate){ 
         setPeakHeartRate(heartRateAvg);
@@ -208,7 +209,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
   // Sync room state with Firestore
   useEffect(() => {
-    let unsubscribeUsers = () => {};
+    let unsubscribeUsers : (() =>void)[]=[];
 
     const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
