@@ -8,6 +8,8 @@ import Peer from "simple-peer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import HeartRate from "@/components/heartrate";
 
+import { fetchGemini } from "./fetchGemini";
+
 interface User {
   name: string;
   photoURL: string;
