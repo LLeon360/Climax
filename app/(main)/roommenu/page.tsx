@@ -69,6 +69,7 @@ export default function RoomMenuPage() {
       users: [user.uid],
       timestamp: 0,
       isPlaying: false,
+      isDone: false,
     });
 
     await setOrUpdateRoom(newRoomRef.id);
