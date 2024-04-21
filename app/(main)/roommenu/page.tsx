@@ -10,6 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useUser, useFirestore, useFirestoreDocData } from "reactfire";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function RoomMenuPage() {
   const { data: user } = useUser();
@@ -21,7 +22,6 @@ export default function RoomMenuPage() {
     const docSnap = await getDoc(userRef);
     console.log("Trying Room ID: ", roomId);
     if (docSnap.exists()) {
-      
       console.log("User doc exists");
       //check if roomId exists
       if (docSnap.data().roomId) {
@@ -31,10 +31,14 @@ export default function RoomMenuPage() {
       } else {
         //if not, create it
         console.log("Setting Room ID: ", roomId);
-        await setDoc(doc(firestore, 'accounts', user.uid), { roomId: roomId }, { merge: true });
-      };
+        await setDoc(
+          doc(firestore, "accounts", user.uid),
+          { roomId: roomId },
+          { merge: true }
+        );
+      }
     }
-  }
+  };
 
   async function joinRoom(roomId: string) {
     const roomRef = doc(firestore, "rooms", roomId);
@@ -76,9 +80,24 @@ export default function RoomMenuPage() {
   return (
     <div className="grow flex flex-col items-center justify-center">
       <section className="w-[32rem] space-y-4">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
-          Select Room
-        </h1>
+        <div className="flex flex-row">
+          <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+            Select Room
+          </h1>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            className="h-10 w-10 ml-2.5 mt-1.8 text-muted-foreground"
+          >
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+          {"     "}
+        </div>
         {/* Create a button for create room and join room */}
         <div className="flex flex-col space-y-4">
           <form
@@ -93,14 +112,14 @@ export default function RoomMenuPage() {
             <input
               type="text"
               className="border border-gray-300 p-2 rounded w-full"
-              placeholder="Enter Video URL"
+              placeholder="Enter Youtube Video URL"
             />
-            <button
+            <Button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 w-full"
+              className="hover:bg-blue-700 font-bold py-2 px-4 rounded mt-2 w-full"
             >
               Create Room
-            </button>
+            </Button>
           </form>
 
           {/* Input form with a room id and a join room button */}
@@ -116,12 +135,12 @@ export default function RoomMenuPage() {
               className="border border-gray-300 p-2 rounded w-full"
               placeholder="Enter Room ID"
             />
-            <button
+            <Button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 w-full"
+              className="hover:bg-blue-700 font-bold py-2 px-4 rounded mt-2 w-full"
             >
               Join Room
-            </button>
+            </Button>
           </form>
         </div>
       </section>

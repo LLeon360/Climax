@@ -15,10 +15,10 @@ export default function Home() {
   return (
     <>
       <div className="grow flex flex-col items-center justify-evenly">
-        <section className="space-y-6">
-          <div className="container flex flex-col items-center gap-8 text-center">
-            <Badge variant="secondary">Now using the app router!</Badge>
-            <Badge className="space-x-4 font-normal text-sm">
+        {/* <section className="space-y-6"> */}
+        <div className="container flex flex-col items-center gap-8 text-center">
+          <Badge variant="secondary">Make watch parties more exciting!</Badge>
+          {/* <Badge className="space-x-4 font-normal text-sm">
               <p>
                 <span className="font-bold">Ve</span>rcel
               </p>
@@ -31,28 +31,27 @@ export default function Home() {
               <p>
                 <span className="font-bold">sh</span>adcn/ui
               </p>
-            </Badge>
-            <h1 className="max-w-4xl font-heading font-semibold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tighter">
-              Quickly start building your next billion dollar app.
-            </h1>
-            <p className="max-w-2xl leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-              Boilerplate &amp; template for React projects using Next.js,
-              shadcn/ui, Tailwind and Firebase...and TypeScript, of course!
-            </p>
-            <div className="space-x-4">
-              <Link href="/login">
-                <Button size="lg">Call to Action!</Button>
-              </Link>
-              <Link target="_blank" href="https://github.com/enesien/venefish">
-                <Button size="lg" variant="link">
+            </Badge> */}
+          <h1 className="max-w-4xl font-heading font-semibold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tighter">
+            Welcome to Climax
+          </h1>
+          <p className="max-w-2xl leading-normal text-muted-foreground sm:text-xl sm:leading-8">
+            Get started by connecting your apple watch below!
+          </p>
+          <div className="space-x-4">
+            <Link href="/profile">
+              <Button size="lg">Apple Watch Session Code</Button>
+            </Link>
+            <Link target="_blank" href="https://github.com/enesien/venefish">
+              {/* <Button size="lg" variant="link">
                   View Project on GitHub &rarr;
-                </Button>
-              </Link>
-            </div>
+                </Button> */}
+            </Link>
           </div>
-        </section>
-        <section className="container mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        </div>
+        {/* </section> */}
+        {/* <section className="container mt-8"> */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
             <div>
               <Card className=" shadow-teal-200 shadow-md border-teal-400">
                 <CardHeader>
@@ -117,8 +116,8 @@ export default function Home() {
                   </Link>
                 </CardContent>
               </Card>
-            </div>
-            <div>
+            </div> */}
+        {/* <div>
               <Card className=" shadow-orange-200 shadow-md border-orange-400">
                 <CardHeader>
                   <CardTitle>Need web development?</CardTitle>
@@ -150,9 +149,9 @@ export default function Home() {
                   </Link>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </section>
+            </div> */}
+        {/* </div> */}
+        {/* </section> */}
       </div>
     </>
   );

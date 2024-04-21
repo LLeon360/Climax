@@ -75,16 +75,18 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   }, [timestamp]);
 
   return (
-    <div className="flex flex-row items-start justify-start p-4">
+    <div className="flex flex-row items-start justify-start pt-4 -mb-[200px] pl-[150px] pr-[50px]">
       <div className="flex flex-col w-3/4">
-        <p className="text-lg font-semibold">
-          Room Code: {params.roomcode}
+        <p className="text-lg font-normal">
+          Room Code:
+          <span className="font-semibold"> {params.roomcode}</span>
           <CopyToClipboard text={params.roomcode}>
-            <button className="ml-2 text-blue-500 hover:text-blue-700">
+            <button className="ml-2 text-blue-500 hover:text-blue-700 font-normal">
               Copy
             </button>
           </CopyToClipboard>
         </p>
+
         <div className="w-full h-[900px] mt-2">
           <ReactPlayer
             ref={playerRef}
@@ -94,14 +96,15 @@ export default function Page({ params }: { params: { roomcode: string } }) {
             onPause={() => updateDoc(roomRef, { isPlaying: false })}
             onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
             controls={true}
-            className="react-player"
+            className="react-player rounded"
             width="100%"
             height="80%"
           />
         </div>
       </div>
 
-      <div className="flex flex-col w-1/4 ml-4">
+      <div className="flex flex-col w-1/4 ml-[50px]">
+        <p className="-mb-[30px] font-semibold">Users</p>
         <div className="flex flex-col mt-10">
           {users.map((user, index) => (
             <div key={index} className="flex items-center mb-2">
