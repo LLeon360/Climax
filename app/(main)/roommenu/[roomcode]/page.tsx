@@ -30,6 +30,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const [stage, setStage] = useState<number>(1);
   const [geminiRequestCompleted, setGeminiRequestCompleted] = useState(false);
   const [geminiResponse, setGeminiResponse] = useState({});
+  const [geminiSmartResponse, setGeminiSmartResponse] = useState({});
 
     const [peakHeartRate, setPeakHeartRate] = useState(0);
     const [peakHeartRateTimestamp, setPeakHeartRateTimestamp] = useState(0);
@@ -291,6 +292,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     let data = await fetchGemini(videoUrl, peakHeartRateTimestamp);
     console.log(data);
     setGeminiResponse(data[2]);
+    setGeminiSmartResponse(data[0]);
     console.log(data[2]);
     setGeminiRequestCompleted(true);
   };
@@ -303,7 +305,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   }, [timestamp]);
 
   return (
-    <div className="flex flex-row items-start justify-start pt-4 -mb-[200px] pl-[150px] pr-[50px]">
+    <div className="flex flex-row items-start justify-start pt-4 -mb-[100px] pl-[150px] pr-[50px]">
       <div className="flex flex-col w-3/4">
         <p className="text-lg font-normal">
           Room Code:
@@ -318,10 +320,11 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         <div className="w-full h-[900px] mt-2">
           {stage === 2 && (
             <div className="flex items-center justify-center h-full">
+              <p>Fetching the Climax Moment</p>
               <Hearts
                 height="80"
                 width="80"
-                color="#4fa94d"
+                color="#eb4034"
                 ariaLabel="hearts-loading"
                 wrapperStyle={{}}
                 wrapperClass=""
@@ -344,6 +347,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
             />
           )}
           {stage === 3 && <p>{geminiResponse}</p>}
+          {stage === 3 && <p>{geminiSmartResponse}</p>}
         </div>
       </div>
 
