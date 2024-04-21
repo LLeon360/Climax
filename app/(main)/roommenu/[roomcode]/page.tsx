@@ -42,8 +42,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const [geminiResponse, setGeminiResponse] = useState("");
   const [geminiSmartResponse, setGeminiSmartResponse] = useState("");
 
-  const [peakHeartRate, setPeakHeartRate] = useState(0);
-  const [peakHeartRateTimestamp, setPeakHeartRateTimestamp] = useState(0);
+  const peakHeartRate = useRef<number>(0);
+  const peakHeartRateTimestamp = useRef<number>(0);
 
   const [stream, setStream] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -100,14 +100,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
     const updateMaxAvgHeartRateInterval = setInterval(() => {
       updateMaxAvgHeartRate();
-      console.log(
-        "Time is " +
-          playerRef.current?.getCurrentTime() +
-          " and peak heart rate is " +
-          peakHeartRate +
-          " at " +
-          peakHeartRateTimestamp
-      );
+      // console.log("Time is " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
     }, 1000);
 
     return () => {
@@ -216,7 +209,6 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         }
       }
       //get avg
-      console.log("Before dividing " + heartRateAvg + " " + userCount);
       heartRateAvg = heartRateAvg / userCount;
       console.log(
         "Avg is " +
@@ -224,17 +216,30 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           " at " +
           playerRef.current?.getCurrentTime() +
           " and peak heart rate is " +
-          peakHeartRate +
+          peakHeartRate.current +
           " at " +
-          peakHeartRateTimestamp
+          peakHeartRateTimestamp.current
       );
-
-      if (heartRateAvg > peakHeartRate) {
+      console.log("True? " + (heartRateAvg > peakHeartRate.current));
+      if (heartRateAvg > peakHeartRate.current) {
+        console.log(
+          "New peak heart rate!" +
+            heartRateAvg +
+            " at " +
+            playerRef.current?.getCurrentTime() +
+            " and peak heart rate is " +
+            peakHeartRate.current +
+            " at " +
+            peakHeartRateTimestamp.current
+        );
         capture();
-        setPeakHeartRate(heartRateAvg);
-        setPeakHeartRateTimestamp(timestamp);
+        peakHeartRate.current = heartRateAvg;
+        peakHeartRateTimestamp.current =
+          playerRef.current?.getCurrentTime() || 0;
+        // setPeakHeartRate(heartRateAvg);
+        // setPeakHeartRateTimestamp(timestamp);
       }
-      console.log(peakHeartRateTimestamp);
+      console.log(peakHeartRateTimestamp.current);
     }
   };
 
@@ -354,9 +359,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       }
     });
     return () => {
-      for (const unsubscribeUser of unsubscribeUsers) {
+      unsubscribeUsers.forEach((unsubscribeUser) => {
         unsubscribeUser();
-      }
+      });
       unsubscribeRoom();
     };
   }, [firestore, params.roomcode]);
@@ -398,9 +403,12 @@ export default function Page({ params }: { params: { roomcode: string } }) {
     // fetch gemini data
     console.log(
       "Fetching Gemini data with timestamp: ",
-      peakHeartRateTimestamp
+      peakHeartRateTimestamp.current
     );
-    let data = await fetchGemini(videoUrl, peakHeartRateTimestamp);
+    let data = await fetchGemini(
+      videoUrl,
+      Math.floor(peakHeartRateTimestamp.current)
+    );
     console.log(data);
     setGeminiResponse(data[2]);
     setGeminiSmartResponse(data[0]);
