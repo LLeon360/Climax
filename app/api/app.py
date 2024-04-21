@@ -10,7 +10,7 @@ print("Configuring GenAI...")
 genai.configure(api_key="AIzaSyBnQprtt8F6H-VFwBB8TaSWtexsxvHS33M")
 
 # Create the prompt.
-
+video_name=""
 prompt = f"""
 Here's a clip from a video titled {video_name} that was automatically clipped because 
 I am watching this video and my current heartrate is 150 BPM.
@@ -130,12 +130,13 @@ Respond with a json array literal of [summary, commentary, joke].
 
 """
 
+
 # Set the model to Gemini 1.5 Pro.
 model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 print("app.py at " + dir_path)
-VIDEO_DOWNLOAD_DIRECTORY = os.path.join(dir_path, "/content/videos")
+VIDEO_DOWNLOAD_DIRECTORY = os.path.join(dir_path, "videos")
 print("VIDEO_DOWNLOAD_DIRECTORY at " + VIDEO_DOWNLOAD_DIRECTORY)
 FRAME_EXTRACTION_DIRECTORY = os.path.join(VIDEO_DOWNLOAD_DIRECTORY, "frames/")
 
@@ -163,7 +164,7 @@ def get_timestamp(filename):
       return None  # Indicates the filename might be incorrectly formatted
   return parts[-1].split('.')[0]
 
-def process_video(video_url, timestamp, clip_length=10):
+def download_and_split_frames(video_url, timestamp, clip_length=10):
     #video_url = "https://www.youtube.com/watch?v=WmR9IMUD_CY"
     #timestamp = 5
 
@@ -228,24 +229,25 @@ def make_request(prompt, files):
 def hello():
     return '<h1>Hello World!</h1>'
 
-@app.route('/api/process_video', methods=['POST'])
+@app.route('/api/process_video', methods=['POST', 'GET'])
 def process_video():
     if(request.method == 'POST'):
         video_url = request.json['video_url']
         timestamp = request.json['timestamp']
+        print(video_url)
+        print(timestamp)
         #clip length is optional
-        clip_length = request.json.get('clip_length', 10)
-        process_video(video_url, timestamp)
+        clip_length = request.json.get('clip_length', 5)
+        download_and_split_frames(video_url, timestamp)
         uploaded_files = upload_frames()
         # List files uploaded in the API
         for n, f in zip(range(len(uploaded_files)), genai.list_files()):
             print(f.uri)
 
-        # Make the LLM request.
-        request = make_request(prompt, uploaded_files)
-        response = model.generate_content(request, request_options={"timeout": 600})
+        # # Make the LLM request.
+        gemini_request = make_request(prompt, uploaded_files)
+        response = model.generate_content(gemini_request, request_options={"timeout": 600})
         print(response.text)
-        
         return response.text;
     return 'Hello World!'
 
