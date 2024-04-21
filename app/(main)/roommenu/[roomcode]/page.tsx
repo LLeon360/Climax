@@ -201,7 +201,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       
       if(heartRateAvg > peakHeartRate){ 
         setPeakHeartRate(heartRateAvg);
-        setPeakHeartRateTimestamp(timestamp);
+        setPeakHeartRateTimestamp(playerRef.current?.getCurrentTime() || 0);
       }
       console.log(peakHeartRateTimestamp);
     }
@@ -248,9 +248,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       }
     });
     return () => {
-      for (const unsubscribeUser of unsubscribeUsers) {
+      unsubscribeUsers.forEach((unsubscribeUser) => {
         unsubscribeUser();
-      }
+      });
       unsubscribeRoom();
     };
   }, [firestore, params.roomcode]);
