@@ -14,9 +14,9 @@ export const NavbarUserLinks: FC = () => {
     <>
       {hasEmitted && data ? (
         <>
-          <Link href="/app" className={buttonVariants()}>
+          {/* <Link href="/app" className={buttonVariants()}>
             Dashboard
-          </Link>
+          </Link> */}
           <UserNav />
         </>
       ) : (

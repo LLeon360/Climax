@@ -5,8 +5,8 @@ import ReactPlayer from "react-player";
 import { useFirestore, useUser } from "reactfire";
 import { socket } from "../../../socket"
 import Peer from "simple-peer";
-import { randomUUID } from "crypto";
 
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 interface User {
   name: string;
@@ -199,29 +199,58 @@ const userVideo = useRef();
   }, [timestamp]);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Num peers: {peers.length}</h1>
-      <ReactPlayer
-        ref={playerRef}
-        url={videoUrl}
-        playing={playing}
-        onPlay={() => updateDoc(roomRef, { isPlaying: true })}
-        onPause={() => updateDoc(roomRef, { isPlaying: false })}
-        onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
-        controls={true}
-      />
-      <button onClick={handlePlayPause}>{playing ? "Pause" : "Play"}</button>
-      <div>
-        {users.map((user, index) => (
-          <div key={index}>
-            <img
-              src={user.photoURL}
-              alt={user.name}
-              style={{ width: "50px", height: "50px" }}
-            />
-            <p>{user.name}</p>
-          </div>
-        ))}
+    <div className="flex flex-row items-start justify-start pt-4 -mb-[200px] pl-[150px] pr-[50px]">
+      <div className="flex flex-col w-3/4">
+        <p className="text-lg font-normal">
+          Room Code:
+          <span className="font-semibold"> {params.roomcode}</span>
+          <CopyToClipboard text={params.roomcode}>
+            <button className="ml-2 text-blue-500 hover:text-blue-700 font-normal">
+              Copy
+            </button>
+          </CopyToClipboard>
+        </p>
+
+        <div className="w-full h-[900px] mt-2">
+          <ReactPlayer
+            ref={playerRef}
+            url={videoUrl}
+            playing={playing}
+            onPlay={() => updateDoc(roomRef, { isPlaying: true })}
+            onPause={() => updateDoc(roomRef, { isPlaying: false })}
+            onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
+            controls={true}
+            className="react-player rounded"
+            width="100%"
+            height="80%"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col w-1/4 ml-[50px]">
+        <p className="-mb-[30px] font-semibold">Users</p>
+        <div className="flex flex-col mt-10">
+          {users.map((user, index) => (
+            <div key={index} className="flex items-center mb-2">
+              <img
+                src={user.photoURL}
+                alt={user.name}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <p className="ml-2 text-sm font-medium">{user.name}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={handlePlayPause}
+          className={`py-2 px-4 rounded-lg font-medium text-white mt-4 self-start ${
+            playing
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {playing ? "Pause" : "Play"}
+        </button>
       </div>
       <p>{params.roomcode}</p>
       <video ref={userVideo} muted autoPlay playsInline />

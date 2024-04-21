@@ -30,6 +30,7 @@
     "lucide-react": "^0.284.0",
     "next": "latest",
     "react": "latest",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "latest",
     "react-hook-form": "^7.50.1",
     "react-player": "^2.16.0",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@types/node": "latest",
     "@types/react": "latest",
+    "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
     "postcss": "latest",
