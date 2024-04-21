@@ -10,6 +10,7 @@ import HeartRate from "@/components/heartrate";
 import { Hearts } from "react-loader-spinner";
 
 import { fetchGemini } from "./fetchGemini";
+import { time } from "console";
 
 interface User {
   name: string;
@@ -29,6 +30,9 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const [stage, setStage] = useState<number>(1);
   const [geminiRequestCompleted, setGeminiRequestCompleted] = useState(false);
   const [geminiResponse, setGeminiResponse] = useState({});
+
+    const [peakHeartRate, setPeakHeartRate] = useState(0);
+    const [peakHeartRateTimestamp, setPeakHeartRateTimestamp] = useState(0);
 
   const [stream, setStream] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -193,7 +197,36 @@ export default function Page({ params }: { params: { roomcode: string } }) {
                 );
                 return [...newUsers, userData];
               });
+
+              // compute a current avg heart rate across users and update max avg heart rate if necessary
+              const updateMaxAvgHeartRate = async () => {
+                let heartRateAvg = 0;
+                let userCount = 0; //count users where data was successfully fetched
+                for(const user of users){
+                  const heartRatesRef = doc(userRef, 'heartRates', roomcode);
+                  const heartRatesSnap = await getDoc(heartRatesRef);
+                  
+                  if (heartRatesSnap.exists() && heartRatesSnap.data().heartRates) {
+                    //get last value of heart rate
+                    const heartRate = heartRatesSnap.data().heartRates[heartRatesSnap.data().heartRates.length - 1];
+                    //add to avg
+                    heartRateAvg += heartRate;
+                    userCount++;
+                  }
+                }
+                //get avg
+                heartRateAvg = heartRateAvg / userCount;
+
+                
+                if(heartRateAvg > peakHeartRate){
+                  setPeakHeartRate(heartRateAvg);
+                  setPeakHeartRateTimestamp(timestamp);
+                }
+              }
+
+              updateMaxAvgHeartRate();
             }
+
           });
           return unsubscribeUser;
         });
@@ -240,7 +273,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const getGeminiResponse = async () => {
     setGeminiRequestCompleted(false);
     // fetch gemini data
-    let data = await fetchGemini(videoUrl, timestamp);
+    console.log("Fetching Gemini data with timestamp: ", peakHeartRateTimestamp);
+    let data = await fetchGemini(videoUrl, peakHeartRateTimestamp);
     console.log(data);
     setGeminiResponse(data[2]);
     console.log(data[2]);
