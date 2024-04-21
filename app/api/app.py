@@ -130,6 +130,10 @@ Commentary: "150 BPM watching an eagle fly? Bro’s heart was soaring higher tha
 
 Respond with a json array literal of [summary, commentary, joke].
 
+The summary should also incllude information about the heartbeat and how that ties into what is currently happening in the video.
+
+IN THE JSON DO NOT INCLUDE joke: or summary: or commentary: in the beginning of the strings. just the text.
+
 """
 
 
@@ -238,7 +242,7 @@ def process_video():
         print(video_url)
         print(timestamp)
         #clip length is optional
-        clip_length = request.json.get('clip_length', 1)
+        clip_length = request.json.get('clip_length', 5)
         download_and_split_frames(video_url, timestamp, clip_length)
         uploaded_files = upload_frames()
         # List files uploaded in the API
