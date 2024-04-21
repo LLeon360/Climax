@@ -153,6 +153,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
   // Sync room state with Firestore
   useEffect(() => {
+    let unsubscribeUsers = () => {};
+    
     const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -165,7 +167,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         setUsers([]);
 
         // Subscribe to each user's document
-        userIds.forEach((userId: string) => {
+        unsubscribeUsers = userIds.map((userId: string) => {
           const userRef = doc(firestore, "accounts", userId);
           const unsubscribeUser = onSnapshot(userRef, (userDoc) => {
             if (userDoc.exists()) {
@@ -187,6 +189,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       }
     });
     return () => {
+      unsubscribeUsers();
       unsubscribeRoom();
     };
   }, [firestore, params.roomcode]);
