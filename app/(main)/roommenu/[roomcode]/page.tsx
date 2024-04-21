@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import ReactPlayer from "react-player";
 import { useFirestore, useUser } from "reactfire";
 import { socket } from "../../../socket";
@@ -218,25 +218,34 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       stage: 2,
     });
     await getGeminiResponse();
-    let roomDoc = doc(firestore, "rooms", params.roomcode);
-    if(roomDoc.exists()){
-      if(roomDoc.data().geminiResponse){
+    let docSnap = await getDoc(roomRef);
+    if (docSnap.exists()) {
+      if (docSnap.data().geminiResponse) {
         await updateDoc(roomRef, { geminiResponse: geminiResponse });
-      }
-      else {
-         await setDoc(doc(firestore, "rooms", params.roomcode), { geminiResponse: geminiResponse }, { merge : true});
+      } else {
+        await setDoc(
+          doc(firestore, "rooms", params.roomcode),
+          { geminiResponse: geminiResponse },
+          { merge: true }
+        );
       }
     }
     setStage(3);
+    await updateDoc(roomRef, {
+      stage: 3,
+    });
+    console.log(stage);
   };
 
   const getGeminiResponse = async () => {
-      setGeminiRequestCompleted(false);
-      // fetch gemini data
-      let data = await fetchGemini(videoUrl, timestamp);
-      setGeminiResponse(data);
-      setGeminiRequestCompleted(true);
-  }
+    setGeminiRequestCompleted(false);
+    // fetch gemini data
+    let data = await fetchGemini(videoUrl, timestamp);
+    console.log(data);
+    setGeminiResponse(data[2]);
+    console.log(data[2]);
+    setGeminiRequestCompleted(true);
+  };
 
   // Seek to the current timestamp whenever it changes
   useEffect(() => {
@@ -286,6 +295,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
               height="80%"
             />
           )}
+          {stage === 3 && <p>{geminiResponse}</p>}
         </div>
       </div>
 
