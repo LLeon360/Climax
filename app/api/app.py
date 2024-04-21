@@ -172,7 +172,6 @@ def download_and_split_frames(video_url, timestamp, clip_length=10):
 
     download_command = f'yt-dlp --external-downloader ffmpeg --external-downloader-args "ffmpeg_i:-ss {timestamp} -t {clip_length}" "{video_url}"'
     print(download_command)
-    os.system('rm download_vid.*')
     os.system(download_command)
 
     extensions = ["3gp", "aac", "flv", "m4a", "mp3", "mp4", "ogg", "wav", "webm"]
@@ -237,8 +236,8 @@ def process_video():
         print(video_url)
         print(timestamp)
         #clip length is optional
-        clip_length = request.json.get('clip_length', 5)
-        download_and_split_frames(video_url, timestamp)
+        clip_length = request.json.get('clip_length', 1)
+        download_and_split_frames(video_url, timestamp, clip_length)
         uploaded_files = upload_frames()
         # List files uploaded in the API
         for n, f in zip(range(len(uploaded_files)), genai.list_files()):
