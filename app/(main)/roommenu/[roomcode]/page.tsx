@@ -5,7 +5,6 @@ import ReactPlayer from "react-player";
 import { useFirestore, useUser } from "reactfire";
 import { socket } from "../../../socket"
 import Peer from "simple-peer";
-
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
 interface User {
@@ -253,16 +252,14 @@ const userVideo = useRef();
         </button>
       </div>
       <p>{params.roomcode}</p>
-      <video ref={userVideo} muted autoPlay playsInline />
+      <video ref={userVideo} muted autoPlay playsInline /> 
 
-      <div className="video-grid">
   {peers.map((peer, index) => (
-    peer.stream ? <PeerVideo key={index} stream={peer.stream} /> : 
+    peer.stream ? <PeerVideo key={index} stream={peer.stream} /> :  
     (<div key={index}>
       <h1 className="text-3xl font-bold">{`${peer.socketId} has no stream`}</h1>
       </div>)
   ))}
-</div>
     </div>
   );
 }
