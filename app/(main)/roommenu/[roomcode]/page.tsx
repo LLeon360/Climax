@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import ReactPlayer from "react-player";
 import { useFirestore, useUser } from "reactfire";
 import { socket } from "../../../socket";
@@ -21,10 +21,14 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const playerRef = useRef<ReactPlayer>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [videoUrl, setVideoUrl] = useState("");
-  const [isDone, setIsDone] = useState<number>(0);
   const [playing, setPlaying] = useState(false);
   const [timestamp, setTimestamp] = useState<number>(0);
   const roomRef = doc(firestore, "rooms", params.roomcode);
+
+  const [stage, setStage] = useState<number>(0);
+  const [geminiRequestCompleted, setGeminiRequestCompleted] = useState(false);
+  const [geminiResponse, setGeminiResponse] = useState({});
+
   const [stream, setStream] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [transport, setTransport] = useState("N/A");
@@ -164,7 +168,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         const data = docSnap.data();
         setVideoUrl(data.videoUrl);
         setPlaying(data.isPlaying);
-        setIsDone(data.isDone || 0);
+        setStage(data.stage || 0);
         setTimestamp(data.timestamp);
         const userIds = data.users; // assuming the field that contains user IDs is named 'users'
 
@@ -210,9 +214,28 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
   const handleEndSession = async () => {
     await updateDoc(roomRef, {
-      isDone: 2,
+      stage: 2,
     });
+    await getGeminiResponse();
+    let roomDoc = doc(firestore, "rooms", params.roomcode);
+    if(roomDoc.exists()){
+      if(roomDoc.data().geminiResponse){
+        await updateDoc(roomRef, { geminiResponse: geminiResponse });
+      }
+      else {
+         await setDoc(doc(firestore, "rooms", params.roomcode), { geminiResponse: geminiResponse }, { merge : true});
+      }
+    }
+    setStage(3);
   };
+
+  const getGeminiResponse = async () => {
+      setGeminiRequestCompleted(false);
+      // fetch gemini data
+      let data = await fetchGemini(videoUrl, timestamp);
+      setGeminiResponse(data);
+      setGeminiRequestCompleted(true);
+  }
 
   // Seek to the current timestamp whenever it changes
   useEffect(() => {
@@ -235,8 +258,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         </p>
 
         <div className="w-full h-[900px] mt-2">
-          {/* only render react player if isDone is not 2 */}
-          {isDone !== 2 && (
+          {/* only render react player if stage is not 2 */}
+          {stage !== 2 && (
             <ReactPlayer
               ref={playerRef}
               url={videoUrl}
@@ -277,8 +300,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         >
           {playing ? "Pause" : "Play"}
         </button>
-        {/* only render end session if isDone is not 2 */}
-        {isDone !== 2 && (
+        {/* only render end session if stage is not 2 */}
+        {stage !== 2 && (
           <button
             onClick={handleEndSession}
             className={
@@ -301,7 +324,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           </div>
         )
       )}
-      {isDone === 2 && <HeartRate />}
+      {stage === 2 && <HeartRate />}
     </div>
   );
 }
