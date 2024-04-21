@@ -34,6 +34,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "latest",
     "react-hook-form": "^7.50.1",
+    "react-loader-spinner": "^6.1.6",
     "react-player": "^2.16.0",
     "reactfire": "^4.2.3",
     "simple-peer": "^9.11.1",
