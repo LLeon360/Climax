@@ -247,7 +247,12 @@ def process_video():
         gemini_request = make_request(prompt, uploaded_files)
         response = model.generate_content(gemini_request, request_options={"timeout": 600})
         print(response.text)
-        return response.text;
+
+        start = response.text.find('[')
+        end = response.text.rfind(']')
+        # Slice the string from 'start' to 'end + 1' to include both brackets
+        response_text = response.text[start:end+1]
+        return response_text;
     return 'Hello World!'
 
 if __name__ == '__main__':
