@@ -14,8 +14,10 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import Webcam from "react-webcam";
 
 interface User {
+  uid: string;
   name: string;
   photoURL: string;
+  heartRate: number;
 }
 
 interface Image {
@@ -205,6 +207,14 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           //add to avg
           heartRateAvg += heartRate;
           console.log(heartRate);
+          
+          setUsers((currentUsers) => currentUsers.map(user => {
+            if (user.uid === userId) { // Assuming your User interface has an 'id' field
+              return { ...user, heartRate: heartRate };
+            }
+            return user;
+          }));
+          
           userCount++;
         }
       }
@@ -342,8 +352,10 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           const unsubscribeUser = onSnapshot(userRef, (userDoc) => {
             if (userDoc.exists()) {
               const userData: User = {
+                uid: userDoc.id,
                 name: userDoc.data().name,
                 photoURL: userDoc.data().photoURL,
+                heartRate: 0
               };
               // Update the state with the new user's data
               setUsers((prevUsers) => {
@@ -491,15 +503,21 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           )}
           <br />
           {users.map((user, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <img
-                src={user.photoURL}
-                alt={user.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <p className="ml-2 text-sm font-medium">{user.name}</p>
-            </div>
-          ))}
+  <div key={index} className="flex items-center mb-2">
+    <img
+      src={user.photoURL}
+      alt={user.name}
+      className="w-12 h-12 rounded-full object-cover"
+    />
+    <p className="ml-2 text-sm font-medium">{user.name}</p>
+    <span className="ml-2 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.172 5.172a4 4 0 015.656 0L12 8.343l3.172-3.171a4 4 0 115.656 5.656L12 19l-8.828-8.828a4 4 0 010-5.656z" />
+      </svg>
+      {user.heartRate > 0 ? user.heartRate : '--'}
+    </span>
+  </div>
+))}
         </div>
         <button
           onClick={handlePlayPause}
