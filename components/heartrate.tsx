@@ -58,7 +58,7 @@ const HeartRate: React.FC = () => {
         }
 
         let highestAvg = 0;
-        let highestAvgIndex = -1;
+        let highestAvgIndex = 175;
         heartRatesAtEachTimestamp.forEach((rates, index) => {
           const sum = rates.reduce((acc, rate) => acc + rate, 0);
           const avg = sum / rates.length;

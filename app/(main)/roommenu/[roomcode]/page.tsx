@@ -6,6 +6,7 @@ import { useFirestore, useUser } from "reactfire";
 import { socket } from "../../../socket";
 import Peer from "simple-peer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import HeartRate from "@/components/heartrate";
 
 interface User {
   name: string;
@@ -18,6 +19,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
   const playerRef = useRef<ReactPlayer>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [videoUrl, setVideoUrl] = useState("");
+  const [isDone, setIsDone] = useState<number>(0);
   const [playing, setPlaying] = useState(false);
   const [timestamp, setTimestamp] = useState<number>(0);
   const roomRef = doc(firestore, "rooms", params.roomcode);
@@ -153,11 +155,13 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
   // Sync room state with Firestore
   useEffect(() => {
+    let unsubscribeUsers = () => {};
     const unsubscribeRoom = onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setVideoUrl(data.videoUrl);
         setPlaying(data.isPlaying);
+        setIsDone(data.isDone || 0);
         setTimestamp(data.timestamp);
         const userIds = data.users; // assuming the field that contains user IDs is named 'users'
 
@@ -165,7 +169,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         setUsers([]);
 
         // Subscribe to each user's document
-        userIds.forEach((userId: string) => {
+        unsubscribeUsers = userIds.forEach((userId: string) => {
           const userRef = doc(firestore, "accounts", userId);
           const unsubscribeUser = onSnapshot(userRef, (userDoc) => {
             if (userDoc.exists()) {
@@ -187,6 +191,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       }
     });
     return () => {
+      unsubscribeUsers();
       unsubscribeRoom();
     };
   }, [firestore, params.roomcode]);
@@ -201,7 +206,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
 
   const handleEndSession = async () => {
     await updateDoc(roomRef, {
-      isDone: true,
+      isDone: 2,
     });
   };
 
@@ -226,18 +231,21 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         </p>
 
         <div className="w-full h-[900px] mt-2">
-          <ReactPlayer
-            ref={playerRef}
-            url={videoUrl}
-            playing={playing}
-            onPlay={() => updateDoc(roomRef, { isPlaying: true })}
-            onPause={() => updateDoc(roomRef, { isPlaying: false })}
-            onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
-            controls={true}
-            className="react-player rounded"
-            width="100%"
-            height="80%"
-          />
+          {/* only render react player if isDone is not 2 */}
+          {isDone !== 2 && (
+            <ReactPlayer
+              ref={playerRef}
+              url={videoUrl}
+              playing={playing}
+              onPlay={() => updateDoc(roomRef, { isPlaying: true })}
+              onPause={() => updateDoc(roomRef, { isPlaying: false })}
+              onSeek={(e) => updateDoc(roomRef, { timestamp: e })}
+              controls={true}
+              className="react-player rounded"
+              width="100%"
+              height="80%"
+            />
+          )}
         </div>
       </div>
 
@@ -265,14 +273,17 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         >
           {playing ? "Pause" : "Play"}
         </button>
-        <button
-          onClick={handleEndSession}
-          className={
-            "py-2 px-4 rounded-lg font-medium text-white mt-4 self-start bg-red-600"
-          }
-        >
-          End Session
-        </button>
+        {/* only render end session if isDone is not 2 */}
+        {isDone !== 2 && (
+          <button
+            onClick={handleEndSession}
+            className={
+              "py-2 px-4 rounded-lg font-medium text-white mt-4 self-start bg-red-600"
+            }
+          >
+            End Session
+          </button>
+        )}
       </div>
       <p>{params.roomcode}</p>
       <video ref={userVideo} muted autoPlay playsInline />
@@ -286,6 +297,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           </div>
         )
       )}
+      {isDone === 2 && <HeartRate />}
     </div>
   );
 }
