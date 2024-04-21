@@ -48,6 +48,7 @@
     "@types/react": "latest",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "latest",
+    "@types/simple-peer": "^9.11.8",
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
