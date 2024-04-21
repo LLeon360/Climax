@@ -67,6 +67,7 @@ export default function RoomMenuPage() {
     const newRoomRef = await addDoc(collection(firestore, "rooms"), {
       videoUrl: videoUrl,
       users: [user.uid],
+      name: `${user.displayName}'s Room`
       timestamp: 0,
       isPlaying: false,
       stage: 1,
