@@ -87,11 +87,11 @@ Commentary: "Heart hitting 150 during a proposal? Bro's more nervous than the gr
 Joke: "Bro’s heart just dropped to one knee too. Someone say yes already! 😂💖
 Summary: "The clip from John Wick: Chapter 2 takes place in a crowded museum during an art exhibition. John Wick, with visible injuries, enters the scene and encounters several individuals, including a woman in a red dress, and engages in tense conversations. The atmosphere is filled with anticipation and a sense of impending violence.",
 Summary: "A heart rate of 150 BPM during this scene suggests a high level of engagement and excitement. The tension and the anticipation of John Wick's potential actions are likely contributing to the increased heart rate. It's as if you are right there with John, ready to jump into the action!",
-Commentary: "Bro's heart rate is doing the 'John Wick quickstep'! Lil bro thinks he's about to unleash some Baba Yaga moves from the couch. 😂🔥  #couchpotatoassassin"
+Commentary: "Bro's heart rate is doing the 'John Wick quickstep'! Lil bro thinks he's about to unleash some Baba Yaga moves from the couch. 😂🔥 "
 Video Type: Dramatic Concert Finale
 Summary: "The band’s lead singer hits an incredible high note to close out the concert."
 Commentary: "150 BPM when that note hit? Girlie was practically on stage with them, mic and all! 🎤😂"
-Joke: "Sis thought she was in the band, heart was yapping louder than the speakers! 🎶🔊 #concertcrasher"
+Joke: "Sis thought she was in the band, heart was yapping louder than the speakers! 🎶🔊"
 Video Type: High-Speed Car Chase Movie Scene
 Summary: "Cars weave dangerously through traffic in a high-stakes movie chase."
 Commentary: "Heart rate at 150 watching that chase? Bro thinks he's in the driver's seat, pedal to the metal! 🚗💨"
@@ -99,15 +99,15 @@ Joke: "Bro’s heart was zooming—thought he was Vin Diesel for a sec, slaying 
 Video Type: Extreme Makeover Reveal
 Summary: "A home makeover show reveals a stunning new house design to the owners."
 Commentary: "150 BPM at that reveal? Girl, your heart was decorating its own living room! 🏠❤️"
-Joke: "Her heart was cooking up its own makeover plans—thought it was 'Extreme Heart Rate Edition'! 😂🛠️ #HGTVwho"
+Joke: "Her heart was cooking up its own makeover plans—thought it was 'Extreme Heart Rate Edition'! 😂🛠️"
 Video Type: Competitive Cooking Show
 Summary: "Chef prepares a complex dish under time pressure in a cooking competition."
 Commentary: "Heart hitting 150 as the timer ticks down? Dude’s down bad for that soufflé, hoping it rises! 🍲😅"
-Joke: "Bro’s heart was in the oven with that soufflé, both tryna rise under pressure! 😂🔥 #MasterChefVibes"
+Joke: "Bro’s heart was in the oven with that soufflé, both tryna rise under pressure! 😂🔥"
 Video Type: Intense Video Game Boss Fight
 Summary: "Gamer faces a notoriously difficult boss in a popular video game."
 Commentary: "150 BPM in this boss fight? Lil bro thinks he’s actually dueling dragons, not just clicking buttons! 🐉🎮"
-Joke: "Bro’s heart was sprinting through that dungeon, swear he was more in the game than his avatar! 😂👾 #GamerLife"
+Joke: "Bro’s heart was sprinting through that dungeon, swear he was more in the game than his avatar! 😂👾"
 Video Type: Cliffhanger TV Episode Ending
 Summary: "A popular TV show ends with a shocking twist that leaves a main character's fate uncertain."
 Commentary: "Girl’s heart rate spiked at that cliffhanger? Sis was hanging off that cliff with the characters! 😲📺"
@@ -115,11 +115,11 @@ Joke: "She was so invested, her heart dropped like it got left on read—season 
 Video Type: Close Call Sports Play
 Summary: "A soccer player narrowly misses a game-winning goal in the final seconds."
 Commentary: "Heart rate at 150 from that miss? Bro is playing from his couch, jersey and all! ⚽😭"
-Joke: "Bro was so down bad after that miss, even his heartbeat needed a pep talk! 😂🥅 #DownBad"
+Joke: "Bro was so down bad after that miss, even his heartbeat needed a pep talk! 😂🥅"
 Video Type: Puppy’s First Steps
 Summary: "A clumsy puppy takes its first steps and tumbles over."
 Commentary: "150 BPM watching this puppy stumble? Girlie’s heart did a lil’ tumble too! 🐶❤️"
-Joke: "Her heart was somersaulting more than the puppy—get this girl a leash, she’s too attached! 😂💖 #PuppyLove"
+Joke: "Her heart was somersaulting more than the puppy—get this girl a leash, she’s too attached! 😂💖"
 Video Type: Reality Show Love Confession
 Summary: "A contestant confesses their feelings in an emotional reality show moment."
 Commentary: "Heart rate soared to 150 during that confession? Sis thinks she's getting proposed to! 💍😂"
