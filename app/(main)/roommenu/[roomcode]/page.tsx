@@ -7,6 +7,7 @@ import { socket } from "../../../socket";
 import Peer from "simple-peer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import HeartRate from "@/components/heartrate";
+import { Hearts } from "react-loader-spinner";
 
 interface User {
   name: string;
@@ -233,7 +234,19 @@ export default function Page({ params }: { params: { roomcode: string } }) {
         </p>
 
         <div className="w-full h-[900px] mt-2">
-          {/* only render react player if isDone is not 2 */}
+          {isDone === 2 && (
+            <div className="flex items-center justify-center h-full">
+              <Hearts
+                height="80"
+                width="80"
+                color="#4fa94d"
+                ariaLabel="hearts-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+                visible={true}
+              />
+            </div>
+          )}
           {isDone !== 2 && (
             <ReactPlayer
               ref={playerRef}
@@ -254,6 +267,17 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       <div className="flex flex-col w-1/4 ml-[50px]">
         <p className="-mb-[30px] font-semibold">Users</p>
         <div className="flex flex-col mt-10">
+          <video ref={userVideo} muted autoPlay playsInline />
+          {peers.map((peer, index) =>
+            peer.stream ? (
+              <PeerVideo key={index} stream={peer.stream} />
+            ) : (
+              <div key={index}>
+                <h1 className="text-3xl font-bold">{`${peer.socketId} has no stream`}</h1>
+              </div>
+            )
+          )}
+          <br />
           {users.map((user, index) => (
             <div key={index} className="flex items-center mb-2">
               <img
@@ -287,18 +311,8 @@ export default function Page({ params }: { params: { roomcode: string } }) {
           </button>
         )}
       </div>
-      <p>{params.roomcode}</p>
-      <video ref={userVideo} muted autoPlay playsInline />
+      {/* <p>{params.roomcode}</p> */}
 
-      {peers.map((peer, index) =>
-        peer.stream ? (
-          <PeerVideo key={index} stream={peer.stream} />
-        ) : (
-          <div key={index}>
-            <h1 className="text-3xl font-bold">{`${peer.socketId} has no stream`}</h1>
-          </div>
-        )
-      )}
       {isDone === 2 && <HeartRate />}
     </div>
   );
