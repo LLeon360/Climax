@@ -1,16 +1,17 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { doc, onSnapshot, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import ReactPlayer from "react-player";
-import { useFirestore, useUser } from "reactfire";
+import { useFirestore, useStorage, useUser } from "reactfire";
 import { socket } from "../../../socket";
 import Peer from "simple-peer";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import HeartRate from "@/components/heartrate";
 import { Hearts } from "react-loader-spinner";
-
 import { fetchGemini } from "./fetchGemini";
 import { time } from "console";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import Webcam from 'react-webcam';
 
 interface User {
   name: string;
@@ -18,6 +19,8 @@ interface User {
 }
 
 export default function Page({ params }: { params: { roomcode: string } }) {
+  const webcamRef = useRef<Webcam>(null);
+  const storage= useStorage();
   const { data: user } = useUser();
   const firestore = useFirestore();
   const playerRef = useRef<ReactPlayer>(null);
@@ -200,12 +203,78 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       console.log("Avg is " + heartRateAvg + " at " + playerRef.current?.getCurrentTime() + " and peak heart rate is " + peakHeartRate + " at " + peakHeartRateTimestamp);
       
       if(heartRateAvg > peakHeartRate){ 
+        capture()
         setPeakHeartRate(heartRateAvg);
         setPeakHeartRateTimestamp(timestamp);
       }
       console.log(peakHeartRateTimestamp);
     }
   }
+
+  const capture = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc) {
+        // Convert base64 string to a Blob
+        const blob = base64ToBlob(imageSrc, 'image/jpeg');
+    
+        const storageRef = ref(storage, `images/${user?.uid ?? "temp"}_${Date.now()}.jpg`);
+    
+        uploadBytes(storageRef, blob).then((snapshot) => {
+          console.log('Uploaded a blob or file!', snapshot);
+    
+          getDownloadURL(snapshot.ref).then((downloadURL) => {
+          const roomDocRef = doc(firestore, "rooms", params.roomcode);
+          getDoc(roomDocRef).then((docSnap) => {
+            if (docSnap.exists()) {
+              const images = docSnap.data().images || [];
+              const newImage = {
+                userId: user?.uid,
+                photoUrl: downloadURL,
+                timestamp: playerRef.current?.getCurrentTime(),
+              };
+              const updatedImages = [...images, newImage];
+              updateDoc(roomDocRef, { images: updatedImages });
+            } else {
+              const newImage = [{
+                userId: user?.uid,
+                photoUrl: downloadURL,
+                timestamp: playerRef.current?.getCurrentTime(),
+              }];
+              setDoc(roomDocRef, { images: newImage }, { merge: true });
+            }
+          }).catch((error) => {
+            console.error("Error updating document:", error);
+          });
+          });
+        }).catch((error) => {
+          console.error("Error uploading file to Firebase Storage:", error);
+        });
+      }
+    }
+  }, [storage]);
+  
+  function base64ToBlob(base64, contentType) {
+    const sliceSize = 512;
+    const byteCharacters = atob(base64.split(',')[1]);
+    const byteArrays = [];
+  
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+  
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+  
+    const blob = new Blob(byteArrays, {type: contentType});
+    return blob;
+  }
+  
 
   // Sync room state with Firestore
   useEffect(() => {
@@ -318,6 +387,7 @@ export default function Page({ params }: { params: { roomcode: string } }) {
             </button>
           </CopyToClipboard>
         </p>
+          
 
         <div className="w-full h-[900px] mt-2">
           {stage === 2 && (
@@ -356,7 +426,13 @@ export default function Page({ params }: { params: { roomcode: string } }) {
       <div className="flex flex-col w-1/4 ml-[50px]">
         <p className="-mb-[30px] font-semibold">Users</p>
         <div className="flex flex-col mt-10">
-          <video ref={userVideo} muted autoPlay playsInline />
+          {/* <video ref={userVideo} muted autoPlay playsInline /> */}
+          <Webcam
+            audio={false}
+            ref={webcamRef}
+            screenshotFormat="image/jpeg"
+            width={250}
+          />
           {peers.map((peer, index) =>
             peer.stream ? (
               <PeerVideo key={index} stream={peer.stream} />
