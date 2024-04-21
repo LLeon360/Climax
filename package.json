@@ -30,6 +30,7 @@
     "lucide-react": "^0.284.0",
     "next": "latest",
     "react": "latest",
+    "react-chartjs-2": "^5.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "latest",
     "react-hook-form": "^7.50.1",
