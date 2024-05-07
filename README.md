@@ -16,4 +16,5 @@ https://www.loom.com/share/5d3bbf6f52a04a4f9d349780f2b38370
 
 ## Devpost
 https://devpost.com/software/climax-dfc5qt 
-
+----
+Uses [Venefish 🐟 Next.js boilerplate & template](https://github.com/enesien/venefish)
